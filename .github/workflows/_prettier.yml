@@ -1,0 +1,21 @@
+name: Linter
+
+on:
+    workflow_call:
+
+jobs:
+    linter:
+        runs-on: ubuntu-latest
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: 8.3
+
+            - name: Setup NPM
+              uses: ./.github/actions/cache_and_install_node_modules
+
+            - run: npm run prettier-check

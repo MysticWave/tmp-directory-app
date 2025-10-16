@@ -1,0 +1,27 @@
+name: 'Cache and install node modules'
+description: 'This action will install and cache node modules'
+
+runs:
+    using: 'composite'
+    steps:
+        - name: Setup PHP
+          uses: shivammathur/setup-php@v2
+          with:
+              php-version: 8.3
+
+        - name: Setup .env
+          shell: bash
+          run: |
+              gpg --quiet --batch --yes --decrypt --passphrase="$GPG_PASSPHRASE" .env.live.gpg > .env
+
+        - name: Cache Composer Dependencies
+          id: cache-composer-dependencies
+          uses: actions/cache@v4
+          with:
+              path: ./vendor
+              key: composer-${{ hashFiles('composer.lock') }}
+
+        - name: Install dependencies
+          shell: bash
+          if: steps.cache-composer-dependencies.outputs.cache-hit != 'true'
+          run: composer install

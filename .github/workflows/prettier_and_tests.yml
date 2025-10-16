@@ -1,0 +1,16 @@
+name: Prettier and Tests
+
+on:
+    pull_request:
+
+jobs:
+    linter:
+        uses: ./.github/workflows/_prettier.yml
+        secrets: inherit
+
+    # test_frontend:
+    #     uses: ./.github/workflows/_test_frontend.yml
+
+    # test_backend:
+    #     uses: ./.github/workflows/_test_backend.yml
+    #     secrets: inherit

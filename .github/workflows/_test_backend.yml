@@ -1,0 +1,42 @@
+name: Test Backend
+
+on:
+    workflow_call:
+
+jobs:
+    test_backend:
+        runs-on: ubuntu-latest
+
+        services:
+            mysql:
+                image: mysql
+                env:
+                    MYSQL_ROOT_PASSWORD: root
+                options: >-
+                    --health-cmd="mysqladmin ping"
+                    --health-interval=5s
+                    --health-timeout=5s
+                    --health-retries=6
+                ports:
+                    - 3306:3306
+
+        steps:
+            - name: Check out repository code
+              uses: actions/checkout@v4
+
+            - name: Setup Composer
+              uses: ./.github/actions/cache_and_install_composer
+              env:
+                  GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+            - name: Setup .env.testing
+              run: cp .env.testing.cicd .env.testing
+
+            - name: Create database
+              run: mysql -h 127.0.0.1 -P 3306 -u root --password=root -e "CREATE DATABASE IF NOT EXISTS laravel_test;"
+
+            - name: Migrate
+              run: php artisan migrate --env=testing --no-interaction
+
+            - name: Run tests
+              run: php artisan test

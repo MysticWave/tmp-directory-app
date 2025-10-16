@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-live
+  labels:
+    app: mysql-live
+  namespace: shane-directory-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-live
+  template:
+    metadata:
+      labels:
+        app: mysql-live
+        mysql-live-version: v8.0.37
+    spec:
+      containers:
+        - image: mysql:8.0.37
+          name: mysql-live
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-storage-live
+              subPath: mysql
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: '*****'
+          args:
+            - --skip-log-bin
+
+      volumes:
+        - name: mysql-storage-live
+          persistentVolumeClaim:
+            claimName: mysql-hs-live
