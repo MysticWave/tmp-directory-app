@@ -7,6 +7,4 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 })->name('home');
 
-Route::get('/login', function () {
-    return Inertia::render('Welcome');
-})->name('login');
+require __DIR__ . '/auth.php';
