@@ -1,15 +1,14 @@
-import { usePage, router } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
-import { onMounted, onUnmounted, watch } from 'vue';
 
-function numberFormat(number) {
+export function numberFormat(number) {
     return number.toLocaleString('en-GB', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
 }
 
-function moneyFormat(number, currency = null) {
+export function moneyFormat(number, currency = null) {
     if (!currency) {
         const page = usePage();
         currency = page.props.app.currency;
@@ -23,17 +22,11 @@ function moneyFormat(number, currency = null) {
     }).format(number);
 }
 
-
-
-function auth() {
+export function auth() {
     return usePage().props.auth.user;
 }
 
-
-
-
-
-const ConfirmModal = Swal.mixin({
+export const ConfirmModal = Swal.mixin({
     icon: 'info',
     showCancelButton: true,
     confirmButtonText: 'Yes!',
@@ -41,7 +34,7 @@ const ConfirmModal = Swal.mixin({
     confirmButtonColor: '#3085d6',
 });
 
-const Toast = Swal.mixin({
+export const Toast = Swal.mixin({
     toast: true,
     position: 'bottom-end',
     showConfirmButton: false,

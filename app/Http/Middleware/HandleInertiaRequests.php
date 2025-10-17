@@ -39,15 +39,17 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'flash' => [
-                'success' => fn () => $request->session()->get(key: 'success'),
-                'error' => fn () => $request->session()->get(key: 'error'),
-                'warning' => fn () => $request->session()->get(key: 'warning'),
-                'info' => fn () => $request->session()->get(key: 'info'),
+                'success' => fn() => $request->session()->get(key: 'success'),
+                'error' => fn() => $request->session()->get(key: 'error'),
+                'warning' => fn() => $request->session()->get(key: 'warning'),
+                'info' => fn() => $request->session()->get(key: 'info'),
             ],
             'auth' => [
                 'user' => $request->user(),
             ],
-            'additional' => fn () => $request->session()->get(key: 'additional', default: []),
+            'additional' => fn() => $request
+                ->session()
+                ->get(key: 'additional', default: []),
         ];
     }
 }

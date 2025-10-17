@@ -27,9 +27,14 @@
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^7.1.0",
+        "@fortawesome/free-regular-svg-icons": "^7.1.0",
+        "@fortawesome/free-solid-svg-icons": "^7.1.0",
+        "@fortawesome/vue-fontawesome": "^3.1.2",
         "@inertiajs/vue3": "^2.0.0",
         "@mysticwave/collect-me": "^1.0.15",
         "@netblink/vue-components": "^2.0.42",
+        "@shufo/prettier-plugin-blade": "^1.16.1",
         "@tailwindcss/vite": "^4.1.14",
         "@vitejs/plugin-vue": "^6.0.0",
         "@vueuse/core": "^12.8.2",
