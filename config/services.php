@@ -33,4 +33,12 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+
+    'lobstrio' => [
+        'api_base_url' => env(
+            'LOBSTRIO_API_BASE_URL',
+            'https://api.lobstr.io/v1',
+        ),
+        'api_key' => env('LOBSTRIO_API_KEY'),
+    ],
 ];

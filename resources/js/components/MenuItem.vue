@@ -5,7 +5,7 @@ import { computed } from 'vue';
 
 const props = defineProps({
     url: String,
-    icon: String,
+    icon: Object,
     isCurrent: Boolean,
 });
 
