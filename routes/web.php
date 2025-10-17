@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -14,6 +15,15 @@ Route::middleware(['auth'])->group(function () {
         'store',
         'update',
     ]);
+
+    Route::resource('places', PlaceController::class)->only([
+        'index',
+        'store',
+        'update',
+    ]);
+    Route::post('places/import', [PlaceController::class, 'import'])->name(
+        'places.import',
+    );
 });
 
 require __DIR__ . '/auth.php';

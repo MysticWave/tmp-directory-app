@@ -4,11 +4,15 @@ import { Table, Thead, Th, Td, Tbody } from '@netblink/vue-components';
 import HeaderBar from '@/components/HeaderBar.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import FormModal from './FormModal.vue';
+import ImportModal from './ImportModal.vue';
 
 defineProps({
-    users: {
+    places: {
         type: Object,
         required: true,
+    },
+    squids: {
+        type: Array,
     },
 });
 
@@ -18,19 +22,20 @@ defineOptions({
 </script>
 
 <template>
-    <Head title="Users" />
+    <Head title="Places" />
     <HeaderBar>
         <ol class="inline-flex items-center">
-            <Link :href="route('users.index')">Users</Link>
+            <Link :href="route('places.index')">Places</Link>
         </ol>
 
         <template #actions>
+            <ImportModal :squids="squids" />
             <FormModal />
         </template>
     </HeaderBar>
 
     <!-- <SearchForm /> -->
-    <Table :links="users.links" :total="users.total">
+    <Table :links="places.links" :total="places.total">
         <Thead>
             <tr>
                 <Th orderBy="id">#</Th>
@@ -38,16 +43,16 @@ defineOptions({
                 <Th class="!w-0"></Th>
             </tr>
         </Thead>
-        <Tbody data="users">
-            <tr v-for="user in users.data" :key="user.id">
+        <Tbody data="places">
+            <tr v-for="place in places.data" :key="place.id">
                 <Td>
-                    {{ user.id }}
+                    {{ place.id }}
                 </Td>
                 <Td>
-                    {{ user.name }}
+                    {{ place.name }}
                 </Td>
                 <Td>
-                    <FormModal :user="user" />
+                    <FormModal :place="place" />
                 </Td>
             </tr>
         </Tbody>
