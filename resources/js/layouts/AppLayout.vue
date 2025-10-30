@@ -38,7 +38,7 @@ const stopImpersonateClicked = ref(false);
 
 <template>
     <div class="top-0 z-50 h-14 w-full bg-white dark:bg-gray-800" :class="auth().is_impersonating ? '!h-24' : ''"></div>
-    <nav class="fixed top-0 z-50 w-full border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+    <nav class="fixed top-0 z-20 w-full border-b border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <div class="bg-primary-500 flex h-10 w-full items-center justify-between px-4 text-white" v-if="auth().is_impersonating">
             <div></div>
             <div>You are logged as: {{ auth().full_name }}</div>

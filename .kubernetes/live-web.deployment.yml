@@ -1,97 +1,97 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: directory-app-live
-  namespace: shane-directory-app
-  annotations:
-    kubernetes.io/change-cause: '%DATE% sha: $CI_COMMIT_SHORT_SHA'
-  labels:
-    app: directory-app-live
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: directory-app-live
-  template:
-    metadata:
-      name: directory-app-live
-      labels:
+    name: directory-app-live
+    namespace: shane-directory-app
+    annotations:
+        kubernetes.io/change-cause: '%DATE% sha: $CI_COMMIT_SHORT_SHA'
+    labels:
         app: directory-app-live
-    spec:
-      affinity:
-        nodeAffinity:
-          # This section forces the pod to run only on nodes that have a specific label.
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: node-autoscaling
-                    operator: In
-                    values:
-                      - enabled
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: directory-app-live
+    template:
+        metadata:
+            name: directory-app-live
+            labels:
+                app: directory-app-live
+        spec:
+            affinity:
+                nodeAffinity:
+                    # This section forces the pod to run only on nodes that have a specific label.
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        nodeSelectorTerms:
+                            - matchExpressions:
+                                  - key: node-autoscaling
+                                    operator: In
+                                    values:
+                                        - enabled
 
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
-                    operator: In
-                    values: [directory-app-live]
-              topologyKey: kubernetes.io/hostname
+                podAntiAffinity:
+                    requiredDuringSchedulingIgnoredDuringExecution:
+                        - labelSelector:
+                              matchExpressions:
+                                  - key: app
+                                    operator: In
+                                    values: [directory-app-live]
+                          topologyKey: kubernetes.io/hostname
 
-      tolerations:
-        - key: 'node-purpose'
-          operator: 'Equal'
-          value: 'deployment'
-          effect: 'NoSchedule'
+            tolerations:
+                - key: 'node-purpose'
+                  operator: 'Equal'
+                  value: 'deployment'
+                  effect: 'NoSchedule'
 
-      imagePullSecrets:
-        - name: robot-directory-app
-      containers:
-        - name: directory-app-live-apache
-          image: harbor.netblink.pl/directory-app/web-live:$CI_COMMIT_SHORT_SHA
-          imagePullPolicy: Always
-          command: ['/bin/bash', '-c']
-          args:
-            [
-              'php artisan migrate --force --isolated && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan storage:link && supervisord -c /etc/supervisor/supervisord.conf && apache2-foreground',
-            ]
-          ports:
-            - containerPort: 80
-          env:
-            - name: CI_COMMIT_SHORT_SHA
-              value: '$CI_COMMIT_SHORT_SHA'
-          # livenessProbe:
-          #   httpGet:
-          #     path: /login
-          #     port: 80
-          #   initialDelaySeconds: 10
-          #   periodSeconds: 30
-          #   timeoutSeconds: 5
-          #   failureThreshold: 3
-          # readinessProbe:
-          #   httpGet:
-          #     path: /login
-          #     port: 80
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 5
-          #   timeoutSeconds: 3
-          #   failureThreshold: 3
+            imagePullSecrets:
+                - name: robot-directory-app
+            containers:
+                - name: directory-app-live-apache
+                  image: harbor.netblink.pl/directory-app/web-live:$CI_COMMIT_SHORT_SHA
+                  imagePullPolicy: Always
+                  command: ['/bin/bash', '-c']
+                  args:
+                      [
+                          'php artisan migrate --force --isolated && php artisan config:cache && php artisan route:cache && php artisan view:cache && php artisan storage:link && supervisord -c /etc/supervisor/supervisord.conf && service cron start && apache2-foreground',
+                      ]
+                  ports:
+                      - containerPort: 80
+                  env:
+                      - name: CI_COMMIT_SHORT_SHA
+                        value: '$CI_COMMIT_SHORT_SHA'
+                  # livenessProbe:
+                  #   httpGet:
+                  #     path: /login
+                  #     port: 80
+                  #   initialDelaySeconds: 10
+                  #   periodSeconds: 30
+                  #   timeoutSeconds: 5
+                  #   failureThreshold: 3
+                  # readinessProbe:
+                  #   httpGet:
+                  #     path: /login
+                  #     port: 80
+                  #   initialDelaySeconds: 5
+                  #   periodSeconds: 5
+                  #   timeoutSeconds: 3
+                  #   failureThreshold: 3
 
-        - name: directory-app-live-promtail
-          image: 'grafana/promtail:latest'
-          imagePullPolicy: Always
-          volumeMounts:
-            - mountPath: /var/www/storage/logs
-              name: shared-volume
-            - mountPath: /etc/promtail
-              name: config-volume
+                - name: directory-app-live-promtail
+                  image: 'grafana/promtail:latest'
+                  imagePullPolicy: Always
+                  volumeMounts:
+                      - mountPath: /var/www/storage/logs
+                        name: shared-volume
+                      - mountPath: /etc/promtail
+                        name: config-volume
 
-      volumes:
-        - name: shared-volume
-          emptyDir: {}
-        - name: config-volume
-          configMap:
-            name: promtail-config
-            items:
-              - key: promtail-config.yaml
-                path: config.yml
+            volumes:
+                - name: shared-volume
+                  emptyDir: {}
+                - name: config-volume
+                  configMap:
+                      name: promtail-config
+                      items:
+                          - key: promtail-config.yaml
+                            path: config.yml

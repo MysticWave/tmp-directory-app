@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\PlaceImportType;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rules\Enum;
 
 class ImportPlaceRequest extends FormRequest
 {
@@ -22,8 +24,8 @@ class ImportPlaceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'squid_id' => ['required', 'string', 'max:255'],
             'query' => ['required', 'string'],
+            'type' => ['required', 'string', new Enum(PlaceImportType::class)],
         ];
     }
 }

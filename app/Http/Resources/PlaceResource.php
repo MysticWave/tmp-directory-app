@@ -29,6 +29,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property string $source
  * @property Carbon $created_at
  * @property Carbon $updated_at
+ * @property int $reviews_count
  */
 final class PlaceResource extends JsonResource
 {
@@ -56,6 +57,7 @@ final class PlaceResource extends JsonResource
             'source' => $this->source,
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
+            'reviews_count' => $this->reviews_count,
         ]);
     }
 }

@@ -1,7 +1,7 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { faBuilding, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faBuilding, faComment, faUsers } from '@fortawesome/free-solid-svg-icons';
 import MenuItem from './MenuItem.vue';
 
 const currentRoute = ref(route().current());
@@ -53,6 +53,7 @@ const closeMenu = () => {
                 <ul class="space-y-2">
                     <MenuItem @click="closeMenu" url="users.index" :icon="faUsers" :isCurrent="isCurrent('users')">Users</MenuItem>
                     <MenuItem @click="closeMenu" url="places.index" :icon="faBuilding" :isCurrent="isCurrent('places')">Places</MenuItem>
+                    <MenuItem @click="closeMenu" url="reviews.index" :icon="faComment" :isCurrent="isCurrent('reviews')">Reviews</MenuItem>
 
                     <li class="h-8"></li>
                 </ul>

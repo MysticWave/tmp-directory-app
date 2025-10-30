@@ -50,9 +50,38 @@ class LobstrioService
         return $response->json();
     }
 
+    public function getRun(string $runId): mixed
+    {
+        $response = $this->client()->get("/runs/{$runId}");
+        return $response->json();
+    }
+
+    public function getRunTasks(string $runId): mixed
+    {
+        $response = $this->client()->get('/runtasks', [
+            'run' => $runId,
+        ]);
+        return $response->json();
+    }
+
+    public function deleteRunTasks(string $runId): bool
+    {
+        try {
+            $tasks = $this->getRunTasks(runId: $runId);
+            foreach ($tasks['data'] as $task) {
+                $this->client()->delete("/tasks/{$task['task']}");
+            }
+            return true;
+        } catch (\Exception $e) {
+            report($e);
+            return false;
+        }
+    }
+
     public function getResults(
         ?string $squidId = null,
         ?string $runId = null,
+        int $page = 1,
     ): mixed {
         $query = [];
         if ($squidId !== null) {
@@ -67,6 +96,8 @@ class LobstrioService
                 'Either squidId OR runId must be provided.',
             );
         }
+
+        $query['page'] = $page;
 
         $response = $this->client()->get('/results', $query);
         return $response->json();
@@ -99,7 +130,6 @@ class LobstrioService
 
         return [
             'run_id' => $runId,
-            'results' => $this->getResults(runId: $runId),
         ];
     }
 }

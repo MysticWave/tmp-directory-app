@@ -79,3 +79,6 @@ RUN if [ ${USERNAME} != "root" ]; then \
 ;fi
 
 USER ${USERNAME}:${GROUP}
+
+# crontab
+RUN (crontab -l 2>/dev/null; echo "* * * * * su -l www-data -s /bin/bash -c 'cd /app/ && /usr/local/bin/php artisan schedule:run >> /app/storage/logs/cron-log 2>&1'") | crontab -
