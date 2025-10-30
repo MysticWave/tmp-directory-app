@@ -40,5 +40,9 @@ return [
             'https://api.lobstr.io/v1',
         ),
         'api_key' => env('LOBSTRIO_API_KEY'),
+        'squids' => [
+            'place_import' => env('LOBSTRIO_PLACE_IMPORT_SQUID_ID'),
+            'review_import' => env('LOBSTRIO_REVIEW_IMPORT_SQUID_ID'),
+        ],
     ],
 ];

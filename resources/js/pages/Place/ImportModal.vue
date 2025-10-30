@@ -1,15 +1,10 @@
 <script setup>
+import { PlaceImportType } from '@/Enum';
 import { faSave, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useForm } from '@inertiajs/vue3';
 import { Input, NewModal, PrimaryButton, SubmitButton } from '@netblink/vue-components';
 import { ref } from 'vue';
-
-const props = defineProps({
-    squids: {
-        type: Array,
-    },
-});
 
 const isModalOpen = ref(false);
 const handleSuccess = () => {
@@ -18,7 +13,7 @@ const handleSuccess = () => {
 
 const form = useForm({
     query: '',
-    squid_id: null,
+    type: PlaceImportType.PLACE,
 });
 
 const save = () => {
@@ -47,18 +42,15 @@ const save = () => {
                 autofocus
                 placeholder="https://www.google.com/maps/place/..."
             />
-            <Input label="Squid" v-model:form="form" field="squid_id" required type="select">
-                <option v-for="squid in props.squids" :key="squid.id" :value="squid.id">
-                    {{ squid.name }}
-                </option>
-            </Input>
+        </form>
 
+        <template #footer>
             <div class="flex items-center gap-4">
-                <SubmitButton :form="form">
+                <SubmitButton :form="form" @click="save">
                     <FontAwesomeIcon :icon="faSave" class="mr-2" />
                     Import
                 </SubmitButton>
             </div>
-        </form>
+        </template>
     </NewModal>
 </template>

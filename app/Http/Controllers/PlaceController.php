@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PlaceImportType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ImportPlaceRequest;
 use App\Http\Requests\Store\StorePlaceRequest;
 use App\Http\Requests\Update\UpdatePlaceRequest;
+use App\Http\Resources\PlaceImportResource;
 use App\Http\Resources\PlaceResource;
 use App\Models\Place;
+use App\Models\PlaceImport;
 use App\Services\LobstrioService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -17,17 +20,16 @@ class PlaceController extends Controller
 {
     public function index(): Response
     {
-        $response = app(LobstrioService::class)->listSquids();
-
         return Inertia::render('Place/Index', [
-            'places' => PlaceResource::collection(Place::paginate(25)),
-            'squids' => Inertia::defer(
-                fn() => collect($response['data'] ?? [])->map(
-                    fn(array $item) => [
-                        'id' => $item['id'],
-                        'name' => $item['name'],
-                    ],
-                ),
+            'places' => PlaceResource::collection(
+                Place::withCount('reviews')
+                    ->paginate(25)
+                    ->withQueryString(),
+            ),
+            'imports' => PlaceImportResource::collection(
+                PlaceImport::where('type', PlaceImportType::PLACE)
+                    ->paginate(25)
+                    ->withQueryString(),
             ),
         ]);
     }
@@ -59,16 +61,23 @@ class PlaceController extends Controller
     public function import(ImportPlaceRequest $request): RedirectResponse
     {
         $validated = $request->validated();
-
-        dd(
-            app(LobstrioService::class)->getPlaceData(
-                squidId: $validated['squid_id'],
-                query: $validated['query'],
-            ),
+        $validated['squid_id'] = config(
+            'services.lobstrio.squids.place_import',
         );
+        $import = PlaceImport::create($validated);
+        $import->run();
 
         return redirect()
             ->route('places.index')
             ->with('success', 'Place import initiated successfully.');
+    }
+
+    public function scrapeReviews(Place $place): RedirectResponse
+    {
+        $place->scrapeReviews();
+
+        return redirect()
+            ->route('places.index')
+            ->with('success', 'Review scraping initiated successfully.');
     }
 }
