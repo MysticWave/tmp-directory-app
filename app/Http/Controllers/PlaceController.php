@@ -74,10 +74,14 @@ class PlaceController extends Controller
 
     public function scrapeReviews(Place $place): RedirectResponse
     {
-        $place->scrapeReviews();
+        if ($place->scrapeReviews()) {
+            return redirect()
+                ->route('places.index')
+                ->with('success', 'Review scraping initiated successfully.');
+        }
 
         return redirect()
             ->route('places.index')
-            ->with('success', 'Review scraping initiated successfully.');
+            ->with('error', 'Failed to initiate review scraping.');
     }
 }

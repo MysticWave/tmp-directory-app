@@ -25,7 +25,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('places/import', [PlaceController::class, 'import'])->name(
         'places.import',
     );
-    Route::post('places/scrape-reviews', [
+    Route::post('places/scrape-reviews/{place}', [
         PlaceController::class,
         'scrapeReviews',
     ])->name('places.scrape-reviews');

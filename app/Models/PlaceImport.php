@@ -82,7 +82,11 @@ class PlaceImport extends Model
                             'google_place_id' => $data['place_id'] ?? null,
                             'cid' => $data['cid'] ?? null,
                             'google_url' => $data['url'] ?? null,
-                            'name' => $data['name'] ?? null,
+                            'name' => str_replace(
+                                '+',
+                                ' ',
+                                $data['name'] ?? '',
+                            ),
                             'type' => $data['category'] ?? null,
                             'description' => $data['description'] ?? null,
                             'address_line_1' => $data['address'] ?? '',
