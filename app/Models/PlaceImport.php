@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\PlaceImportStatus;
+use App\Enums\PlaceImportTaskType;
 use App\Enums\PlaceImportType;
 use App\Enums\ReviewSource;
 use App\Services\LobstrioService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\Storage;
 
 class PlaceImport extends Model
@@ -18,28 +20,38 @@ class PlaceImport extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'place_id',
         'query',
+        'params',
         'squid_id',
         'run_id',
         'status',
         'type',
+        'task_type',
     ];
 
     protected function casts(): array
     {
         return [
+            'params' => 'json',
             'status' => PlaceImportStatus::class,
             'type' => PlaceImportType::class,
+            'task_type' => PlaceImportTaskType::class,
         ];
     }
 
     public function run(): void
     {
-        $result = app(LobstrioService::class)->getPlaceData(
-            squidId: $this->squid_id,
-            query: $this->query,
-        );
+        if ($this->task_type == PlaceImportTaskType::URL) {
+            $result = app(LobstrioService::class)->getPlaceData(
+                squidId: $this->squid_id,
+                url: $this->query,
+            );
+        } else {
+            $result = app(LobstrioService::class)->getPlaceData(
+                squidId: $this->squid_id,
+                params: $this->params,
+            );
+        }
 
         $this->update([
             'run_id' => $result['run_id'] ?? null,
@@ -70,15 +82,18 @@ class PlaceImport extends Model
 
     public function processResults(): void
     {
-        $results = $this->getResults();
+        $results = $this->getAllResults();
 
         try {
             switch ($this->type) {
                 case PlaceImportType::PLACE:
-                    $data = $results['data'][0] ?? null; //there should not be more than 1 result for place import
-                    if ($data) {
+                    foreach ($results as $data) {
+                        $pictureUrls = explode(',', $data['images'] ?? '');
+                        $pictures = $this->saveImages($pictureUrls);
+
                         $place = $this->place ?? new Place();
                         $place->fill([
+                            'import_id' => $this->id,
                             'google_place_id' => $data['place_id'] ?? null,
                             'cid' => $data['cid'] ?? null,
                             'google_url' => $data['url'] ?? null,
@@ -108,84 +123,66 @@ class PlaceImport extends Model
                             'tags' => [],
                             'is_verified' => false,
                             'source' => ReviewSource::Google,
+                            'images' => $pictures,
                         ]);
                         $place->save();
-
-                        if (!$this->place_id) {
-                            $this->update(['place_id' => $place->id]);
-                        }
                     }
 
                     break;
                 case PlaceImportType::REVIEWS:
-                    $page = 1;
-                    while (true) {
-                        $data = $results['data'] ?? [];
-                        $place_id =
-                            $this->place_id ??
-                            (Place::where(
-                                'google_place_id',
-                                $data[0]['place_id'] ?? '',
-                            )->value('id') ??
-                                null);
-                        if (!$place_id) {
-                            throw new \Exception(
-                                'Place ID not found for reviews import.',
-                            );
+                    foreach ($results as $reviewData) {
+                        $place = Place::where(
+                            'google_place_id',
+                            $reviewData['place_id'] ?? '',
+                        )->first();
+
+                        if (!$place) {
+                            continue;
                         }
 
-                        foreach ($data as $reviewData) {
-                            $pictureUrls = explode(
-                                ',',
-                                $reviewData['pictures'] ?? '',
-                            );
-                            $pictures = $this->saveImages($pictureUrls);
+                        $pictureUrls = explode(
+                            ',',
+                            $reviewData['pictures'] ?? '',
+                        );
+                        $pictures = $this->saveImages($pictureUrls);
 
-                            Review::updateOrCreate(
-                                [
-                                    'external_review_id' =>
-                                        $reviewData['internal_review_id'],
-                                ],
-                                [
-                                    'place_id' => $place_id,
-                                    'source' => ReviewSource::Google,
-                                    'external_review_id' =>
-                                        $reviewData['internal_review_id'],
-                                    'author_name' =>
-                                        $reviewData['user_name'] ?? null,
-                                    'author_url' =>
-                                        $reviewData['user_link'] ?? null,
-                                    'author_image_url' =>
-                                        $reviewData['user_image_url'] ?? null,
-                                    'author_external_id' =>
-                                        $reviewData['user_internal_id'] ?? null,
-                                    'rating' => $reviewData['score'] ?? 0,
-                                    'text' => $reviewData['text'] ?? null,
-                                    'original_text' =>
-                                        $reviewData['original_text'] ?? null,
-                                    'is_translated' =>
-                                        $reviewData['text'] !==
-                                        $reviewData['original_text'],
-                                    'language' => $reviewData['lang'] ?? null,
-                                    'likes_count' =>
-                                        $reviewData['total_likes'] ?? 0,
-                                    'reviews_count' =>
-                                        $reviewData['user_reviews_count'] ?? 0,
-                                    'published_at' =>
-                                        $reviewData['published_at_datetime'] ??
-                                        null,
-                                    'raw' => $reviewData,
-                                    'pictures' => $pictures,
-                                ],
-                            );
-                        }
-
-                        if ($results['page'] >= $results['total_pages']) {
-                            break;
-                        }
-
-                        $page++;
-                        $results = $this->getResults(page: $page);
+                        Review::updateOrCreate(
+                            [
+                                'external_review_id' =>
+                                    $reviewData['internal_review_id'],
+                            ],
+                            [
+                                'place_id' => $place->id,
+                                'source' => ReviewSource::Google,
+                                'external_review_id' =>
+                                    $reviewData['internal_review_id'],
+                                'author_name' =>
+                                    $reviewData['user_name'] ?? null,
+                                'author_url' =>
+                                    $reviewData['user_link'] ?? null,
+                                'author_image_url' =>
+                                    $reviewData['user_image_url'] ?? null,
+                                'author_external_id' =>
+                                    $reviewData['user_internal_id'] ?? null,
+                                'rating' => $reviewData['score'] ?? 0,
+                                'text' => $reviewData['text'] ?? null,
+                                'original_text' =>
+                                    $reviewData['original_text'] ?? null,
+                                'is_translated' =>
+                                    $reviewData['text'] !==
+                                    $reviewData['original_text'],
+                                'language' => $reviewData['lang'] ?? null,
+                                'likes_count' =>
+                                    $reviewData['total_likes'] ?? 0,
+                                'reviews_count' =>
+                                    $reviewData['user_reviews_count'] ?? 0,
+                                'published_at' =>
+                                    $reviewData['published_at_datetime'] ??
+                                    null,
+                                'raw' => $reviewData,
+                                'pictures' => $pictures,
+                            ],
+                        );
                     }
                     break;
             }
@@ -226,6 +223,20 @@ class PlaceImport extends Model
         return $pictures;
     }
 
+    public function getAllResults(): array
+    {
+        $allResults = [];
+        $page = 1;
+
+        do {
+            $results = $this->getResults(page: $page);
+            $allResults = array_merge($allResults, $results['data'] ?? []);
+            $page++;
+        } while ($page <= ($results['total_pages'] ?? 0));
+
+        return $allResults;
+    }
+
     public function getResults(int $page = 1): array
     {
         return app(LobstrioService::class)->getResults(
@@ -234,8 +245,8 @@ class PlaceImport extends Model
         );
     }
 
-    public function place(): BelongsTo
+    public function places(): HasMany
     {
-        return $this->belongsTo(Place::class);
+        return $this->hasMany(Place::class);
     }
 }

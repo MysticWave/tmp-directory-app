@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PlaceController;
+use App\Http\Controllers\PlaceImportController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -22,13 +23,15 @@ Route::middleware(['auth'])->group(function () {
         'store',
         'update',
     ]);
-    Route::post('places/import', [PlaceController::class, 'import'])->name(
-        'places.import',
-    );
-    Route::post('places/scrape-reviews/{place}', [
+    Route::post('places/scrape-reviews/', [
         PlaceController::class,
         'scrapeReviews',
     ])->name('places.scrape-reviews');
+
+    Route::resource('place-imports', PlaceImportController::class)->only([
+        'index',
+        'store',
+    ]);
 
     Route::resource('reviews', ReviewController::class)->only([
         'index',

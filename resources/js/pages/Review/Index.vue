@@ -19,7 +19,7 @@ defineOptions({
     layout: AppLayout,
 });
 
-const showOriginalText = ref(false);
+const showTranslatedText = ref(false);
 </script>
 
 <template>
@@ -30,7 +30,7 @@ const showOriginalText = ref(false);
         </ol>
     </HeaderBar>
 
-    <Input type="checkbox" rightDescription="Show Original Text" v-model="showOriginalText" class="mt-4 !mb-0 w-max" />
+    <Input type="checkbox" rightDescription="Translate Text" v-model="showTranslatedText" class="mt-4 !mb-0 w-max" />
 
     <!-- <SearchForm /> -->
     <Table :pagination="reviews.meta" :total="reviews.meta.total">
@@ -49,7 +49,7 @@ const showOriginalText = ref(false);
                 <Td>
                     {{ review.place_name }}
                 </Td>
-                <Td>{{ showOriginalText ? review.original_text : review.text }}</Td>
+                <Td>{{ showTranslatedText ? review.text : review.original_text }}</Td>
                 <Td>
                     <div class="flex items-center">
                         <FontAwesomeIcon :icon="faStar" class="text-yellow-400" v-for="n in review.rating" :key="n" />

@@ -53,6 +53,9 @@ const closeMenu = () => {
                 <ul class="space-y-2">
                     <MenuItem @click="closeMenu" url="users.index" :icon="faUsers" :isCurrent="isCurrent('users')">Users</MenuItem>
                     <MenuItem @click="closeMenu" url="places.index" :icon="faBuilding" :isCurrent="isCurrent('places')">Places</MenuItem>
+                    <MenuItem @click="closeMenu" url="place-imports.index" :icon="faBuilding" :isCurrent="isCurrent('place-imports')">
+                        Place Imports
+                    </MenuItem>
                     <MenuItem @click="closeMenu" url="reviews.index" :icon="faComment" :isCurrent="isCurrent('reviews')">Reviews</MenuItem>
 
                     <li class="h-8"></li>

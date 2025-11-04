@@ -1,26 +1,39 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
-import { Table, Thead, Th, Td, Tbody } from '@netblink/vue-components';
+import { Table, Thead, Th, Td, Tbody, Input } from '@netblink/vue-components';
 import HeaderBar from '@/components/HeaderBar.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import FormModal from './FormModal.vue';
 import ImportModal from './ImportModal.vue';
 import ScrapeReviewsModal from './ScrapeReviewsModal.vue';
+import { computed } from 'vue';
 
-defineProps({
+const props = defineProps({
     places: {
         type: Object,
         required: true,
-    },
-    imports: {
-        type: Object,
-        required: false,
     },
 });
 
 defineOptions({
     layout: AppLayout,
 });
+
+const selectedAll = computed({
+    get() {
+        return props.places.data.every((place) => place.selected);
+    },
+    set(value) {},
+});
+const selectAll = (e) => {
+    props.places.data.forEach((place) => {
+        place.selected = e.target.checked;
+    });
+};
+
+const getSelectedPlaces = () => {
+    return props.places.data.filter((place) => place.selected);
+};
 </script>
 
 <template>
@@ -33,6 +46,7 @@ defineOptions({
         <template #actions>
             <ImportModal />
             <FormModal />
+            <ScrapeReviewsModal :places="getSelectedPlaces()" />
         </template>
     </HeaderBar>
 
@@ -40,6 +54,7 @@ defineOptions({
     <Table :pagination="places.meta" :total="places.meta.total">
         <Thead>
             <tr>
+                <Th class="!w-0"><Input type="checkbox" class="!mb-0" v-model="selectedAll" @change="selectAll" rightDescription="" /></Th>
                 <Th orderBy="id">#</Th>
                 <Th orderBy="name">Name</Th>
                 <Th>Reviews</Th>
@@ -48,6 +63,9 @@ defineOptions({
         </Thead>
         <Tbody data="places">
             <tr v-for="place in places.data" :key="place.id">
+                <Td>
+                    <Input type="checkbox" class="!mb-0" v-model="place.selected" rightDescription="" />
+                </Td>
                 <Td>
                     {{ place.id }}
                 </Td>
@@ -61,40 +79,7 @@ defineOptions({
                     <span v-else>0</span>
                 </Td>
                 <Td>
-                    <div class="flex items-center gap-1">
-                        <FormModal :place="place" />
-                        <ScrapeReviewsModal :place="place" />
-                    </div>
-                </Td>
-            </tr>
-        </Tbody>
-    </Table>
-
-    <hr class="my-10" />
-    <p>Imports</p>
-
-    <Table :pagination="imports.meta" :total="imports.meta.total">
-        <Thead>
-            <tr>
-                <Th orderBy="id">#</Th>
-                <Th orderBy="query">Query</Th>
-                <Th>Status</Th>
-                <Th>Created</Th>
-            </tr>
-        </Thead>
-        <Tbody data="imports">
-            <tr v-for="_import in imports.data" :key="_import.id">
-                <Td>
-                    {{ _import.id }}
-                </Td>
-                <Td>
-                    {{ _import.query }}
-                </Td>
-                <Td>
-                    {{ _import.status }}
-                </Td>
-                <Td>
-                    {{ _import.created_at }}
+                    <FormModal :place="place" />
                 </Td>
             </tr>
         </Tbody>

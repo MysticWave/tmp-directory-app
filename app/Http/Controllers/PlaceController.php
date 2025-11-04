@@ -2,16 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Enums\PlaceImportType;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\ImportPlaceRequest;
+use App\Http\Requests\ScrapeReviewsRequest;
 use App\Http\Requests\Store\StorePlaceRequest;
 use App\Http\Requests\Update\UpdatePlaceRequest;
-use App\Http\Resources\PlaceImportResource;
 use App\Http\Resources\PlaceResource;
 use App\Models\Place;
-use App\Models\PlaceImport;
-use App\Services\LobstrioService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,11 +19,7 @@ class PlaceController extends Controller
         return Inertia::render('Place/Index', [
             'places' => PlaceResource::collection(
                 Place::withCount('reviews')
-                    ->paginate(25)
-                    ->withQueryString(),
-            ),
-            'imports' => PlaceImportResource::collection(
-                PlaceImport::where('type', PlaceImportType::PLACE)
+                    ->orderByDesc('id')
                     ->paginate(25)
                     ->withQueryString(),
             ),
@@ -58,30 +50,38 @@ class PlaceController extends Controller
             ->with('success', 'Place updated successfully.');
     }
 
-    public function import(ImportPlaceRequest $request): RedirectResponse
-    {
+    public function scrapeReviews(
+        ScrapeReviewsRequest $request,
+    ): RedirectResponse {
         $validated = $request->validated();
-        $validated['squid_id'] = config(
-            'services.lobstrio.squids.place_import',
-        );
-        $import = PlaceImport::create($validated);
-        $import->run();
+        $places = Place::whereIn('id', $validated['places_ids'])->get();
+        $failed = 0;
+        foreach ($places as $place) {
+            if (!$place->scrapeReviews()) {
+                $failed++;
+            }
+        }
 
-        return redirect()
-            ->route('places.index')
-            ->with('success', 'Place import initiated successfully.');
-    }
-
-    public function scrapeReviews(Place $place): RedirectResponse
-    {
-        if ($place->scrapeReviews()) {
+        if ($failed === 0) {
             return redirect()
                 ->route('places.index')
                 ->with('success', 'Review scraping initiated successfully.');
         }
 
+        if ($failed === $places->count()) {
+            return redirect()
+                ->route('places.index')
+                ->with(
+                    'error',
+                    'Failed to initiate review scraping for all places.',
+                );
+        }
+
         return redirect()
-            ->route('places.index')
-            ->with('error', 'Failed to initiate review scraping.');
+            ->back()
+            ->with(
+                'warning',
+                'Failed to initiate review scraping for some places.',
+            );
     }
 }
