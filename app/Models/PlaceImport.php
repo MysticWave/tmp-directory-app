@@ -91,7 +91,10 @@ class PlaceImport extends Model
                         $pictureUrls = explode(',', $data['images'] ?? '');
                         $pictures = $this->saveImages($pictureUrls);
 
-                        $place = $this->place ?? new Place();
+                        $place = Place::where(
+                            'google_place_id',
+                            $data['place_id'] ?? '',
+                        )->firstOrNew();
                         $place->fill([
                             'import_id' => $this->id,
                             'google_place_id' => $data['place_id'] ?? null,

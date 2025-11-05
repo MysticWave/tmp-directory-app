@@ -4,13 +4,16 @@ namespace App\Models;
 
 use App\Enums\PlaceImportTaskType;
 use App\Enums\PlaceImportType;
+use App\Traits\OrderableTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
 
 class Place extends Model
 {
+    use OrderableTrait;
     /**
      * The attributes that are mass assignable.
      *
@@ -95,5 +98,26 @@ class Place extends Model
     public function import(): BelongsTo
     {
         return $this->belongsTo(PlaceImport::class, 'import_id');
+    }
+
+    public function scopeQuerySearch(Builder $query): void
+    {
+        $query
+            ->when(request()->input('term'), function ($query, $search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->when(request()->input('city'), function ($query, $city) {
+                $query->where('city', $city);
+            })
+            ->when(request()->input('has_reviews'), function (
+                $query,
+                $hasReviews,
+            ) {
+                if ($hasReviews == 'true') {
+                    $query->whereHas('reviews');
+                } else {
+                    $query->whereDoesntHave('reviews');
+                }
+            });
     }
 }

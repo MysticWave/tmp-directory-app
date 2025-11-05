@@ -8,6 +8,7 @@ use App\Http\Requests\Store\StorePlaceRequest;
 use App\Http\Requests\Update\UpdatePlaceRequest;
 use App\Http\Resources\PlaceResource;
 use App\Models\Place;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -19,7 +20,8 @@ class PlaceController extends Controller
         return Inertia::render('Place/Index', [
             'places' => PlaceResource::collection(
                 Place::withCount('reviews')
-                    ->orderByDesc('id')
+                    ->querySearch()
+                    ->queryOrder()
                     ->paginate(25)
                     ->withQueryString(),
             ),
@@ -83,5 +85,21 @@ class PlaceController extends Controller
                 'warning',
                 'Failed to initiate review scraping for some places.',
             );
+    }
+
+    public function getCities(): JsonResponse
+    {
+        $cities = Place::select('city')
+            ->distinct()
+            ->when(request()->get('term'), function ($query, $term) {
+                $query->where('city', 'like', '%' . $term . '%');
+            })
+            ->orderBy('city')
+            ->pluck('city')
+            ->map(function ($city) {
+                return ['value' => $city, 'label' => $city];
+            });
+
+        return response()->json(['data' => $cities]);
     }
 }

@@ -7,6 +7,7 @@ import FormModal from './FormModal.vue';
 import ImportModal from './ImportModal.vue';
 import ScrapeReviewsModal from './ScrapeReviewsModal.vue';
 import { computed } from 'vue';
+import SearchForm from './SearchForm.vue';
 
 const props = defineProps({
     places: {
@@ -50,7 +51,7 @@ const getSelectedPlaces = () => {
         </template>
     </HeaderBar>
 
-    <!-- <SearchForm /> -->
+    <SearchForm />
     <Table :pagination="places.meta" :total="places.meta.total">
         <Thead>
             <tr>

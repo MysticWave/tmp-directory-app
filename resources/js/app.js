@@ -1,4 +1,5 @@
 import '../css/app.css';
+import 'vue-search-select/dist/VueSearchSelect.css';
 
 import { createInertiaApp, router, usePage } from '@inertiajs/vue3';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';

@@ -27,6 +27,10 @@ Route::middleware(['auth'])->group(function () {
         PlaceController::class,
         'scrapeReviews',
     ])->name('places.scrape-reviews');
+    Route::get('places/get-cities/', [
+        PlaceController::class,
+        'getCities',
+    ])->name('places.get-cities');
 
     Route::get('place-imports/squid-details', [
         PlaceImportController::class,
