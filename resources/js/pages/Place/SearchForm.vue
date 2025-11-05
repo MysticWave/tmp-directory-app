@@ -8,6 +8,7 @@ const form = useForm({
     term: route().params.term ?? null,
     city: route().params.city ?? null,
     has_reviews: route().params.has_reviews ?? '',
+    is_verified: route().params.is_verified ?? '',
 });
 
 watchForm(form);
@@ -19,6 +20,11 @@ watchForm(form);
             <Input v-model:form="form" field="term" type="search" label="Name" />
             <Select2ajax id="city" class="min-w-40" v-model:form="form" field="city" :url="route('places.get-cities')" />
             <Input class="sm:w-32" v-model:form="form" field="has_reviews" type="select" label="Has Reviews">
+                <option value="">All</option>
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+            </Input>
+            <Input class="sm:w-32" v-model:form="form" field="is_verified" type="select" label="Is Verified">
                 <option value="">All</option>
                 <option value="true">Yes</option>
                 <option value="false">No</option>

@@ -118,6 +118,19 @@ class Place extends Model
                 } else {
                     $query->whereDoesntHave('reviews');
                 }
+            })
+            ->when(request()->input('is_verified'), function (
+                $query,
+                $isVerified,
+            ) {
+                if ($isVerified == 'true') {
+                    $query->where('is_verified', true);
+                } else {
+                    $query->where('is_verified', false);
+                }
+            })
+            ->when(request()->input('import_id'), function ($query, $importId) {
+                $query->where('import_id', $importId);
             });
     }
 }
