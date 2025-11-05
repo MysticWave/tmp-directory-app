@@ -9,6 +9,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * @property int $id
+ * @property ?int $import_id
  * @property string $name
  * @property PlaceType $type
  * @property string|null $description
@@ -37,6 +38,7 @@ final class PlaceResource extends JsonResource
     {
         return array_filter([
             'id' => $this->id,
+            'import_id' => $this->import_id,
             'name' => $this->name,
             'type' => $this->type,
             'description' => $this->description,

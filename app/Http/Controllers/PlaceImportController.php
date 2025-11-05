@@ -14,6 +14,7 @@ use App\Http\Resources\PlaceResource;
 use App\Models\Place;
 use App\Models\PlaceImport;
 use App\Services\LobstrioService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -24,8 +25,18 @@ class PlaceImportController extends Controller
     {
         return Inertia::render('PlaceImport/Index', [
             'imports' => PlaceImportResource::collection(
-                PlaceImport::paginate(25)->withQueryString(),
+                PlaceImport::orderByDesc('id')
+                    ->paginate(25)
+                    ->withQueryString(),
             ),
+        ]);
+    }
+
+    public function show(PlaceImport $placeImport): Response
+    {
+        $placeImport->load('places');
+        return Inertia::render('PlaceImport/Show', [
+            'placeImport' => new PlaceImportResource($placeImport),
         ]);
     }
 
@@ -57,5 +68,17 @@ class PlaceImportController extends Controller
         return redirect()
             ->back()
             ->with('success', 'Place import initiated successfully.');
+    }
+
+    public function getImportSquidDetails(): JsonResponse
+    {
+        $lobstrioService = app(LobstrioService::class);
+        $squidDetails = $lobstrioService->getSquid(
+            config('services.lobstrio.squids.place_import'),
+        );
+
+        return response()->json([
+            'results' => $squidDetails['params']['max_results'] ?? null,
+        ]);
     }
 }

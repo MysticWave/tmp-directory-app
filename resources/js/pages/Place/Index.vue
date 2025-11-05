@@ -57,6 +57,7 @@ const getSelectedPlaces = () => {
                 <Th class="!w-0"><Input type="checkbox" class="!mb-0" v-model="selectedAll" @change="selectAll" rightDescription="" /></Th>
                 <Th orderBy="id">#</Th>
                 <Th orderBy="name">Name</Th>
+                <Th orderBy="import_id">Import</Th>
                 <Th>Reviews</Th>
                 <Th class="!w-0"></Th>
             </tr>
@@ -71,6 +72,12 @@ const getSelectedPlaces = () => {
                 </Td>
                 <Td>
                     {{ place.name }}
+                </Td>
+                <Td>
+                    <Link :href="route('place-imports.show', place.import_id)" class="underline" v-if="place.import_id">
+                        {{ place.import_id }}
+                    </Link>
+                    <span v-else>-</span>
                 </Td>
                 <Td>
                     <Link :href="route('reviews.index', { place_id: place.id })" class="underline" v-if="place.reviews_count">

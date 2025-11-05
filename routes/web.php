@@ -28,8 +28,13 @@ Route::middleware(['auth'])->group(function () {
         'scrapeReviews',
     ])->name('places.scrape-reviews');
 
+    Route::get('place-imports/squid-details', [
+        PlaceImportController::class,
+        'getImportSquidDetails',
+    ])->name('place-imports.squid-details');
     Route::resource('place-imports', PlaceImportController::class)->only([
         'index',
+        'show',
         'store',
     ]);
 

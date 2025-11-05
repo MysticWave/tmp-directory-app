@@ -33,24 +33,30 @@ defineOptions({
         <Thead>
             <tr>
                 <Th orderBy="id">#</Th>
-                <Th orderBy="query">Query</Th>
+                <Th orderBy="type">Type</Th>
                 <Th>Status</Th>
                 <Th>Created</Th>
+                <Th orderBy="query">Query</Th>
             </tr>
         </Thead>
         <Tbody data="imports">
             <tr v-for="_import in imports.data" :key="_import.id">
                 <Td>
-                    {{ _import.id }}
+                    <Link :href="route('place-imports.show', _import.id)" class="underline">
+                        {{ _import.id }}
+                    </Link>
                 </Td>
                 <Td>
-                    {{ _import.query }}
+                    {{ _import.type }}
                 </Td>
                 <Td>
                     {{ _import.status }}
                 </Td>
                 <Td>
                     {{ _import.created_at }}
+                </Td>
+                <Td>
+                    {{ _import.query ?? _import.params }}
                 </Td>
             </tr>
         </Tbody>

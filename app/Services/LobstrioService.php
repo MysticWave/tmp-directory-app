@@ -32,6 +32,12 @@ class LobstrioService
         });
     }
 
+    public function getSquid(string $squidId): mixed
+    {
+        $response = $this->client()->get("/squids/{$squidId}");
+        return $response->json();
+    }
+
     public function addTasks(string $squidId, array $tasks): mixed
     {
         $response = $this->client()->post('/tasks', [

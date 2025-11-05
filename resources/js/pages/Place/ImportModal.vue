@@ -4,7 +4,7 @@ import { faSave, faUpload } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useForm } from '@inertiajs/vue3';
 import { Input, NewModal, PrimaryButton, SubmitButton } from '@netblink/vue-components';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 const isModalOpen = ref(false);
 const handleSuccess = () => {
@@ -27,6 +27,17 @@ const save = () => {
         onSuccess: () => handleSuccess(),
     });
 };
+
+const squidDetails = ref(null);
+const getSquidDetails = () => {
+    fetch(route('place-imports.squid-details'))
+        .then((response) => response.json())
+        .then((data) => {
+            squidDetails.value = data;
+        });
+};
+
+onMounted(getSquidDetails);
 </script>
 
 <template>
@@ -70,6 +81,7 @@ const save = () => {
             </template>
 
             <template v-else>
+                <p v-if="squidDetails">Max Results: {{ squidDetails.results }}</p>
                 <Input label="Category" v-model:form="form" field="category" required autofocus placeholder="e.g., restaurant, cafe, museum" />
                 <Input label="Country" v-model:form="form" field="country" required placeholder="e.g., United States, Canada, United Kingdom" />
                 <Input label="City" v-model:form="form" field="city" required placeholder="e.g., New York, London, Paris" />

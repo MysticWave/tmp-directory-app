@@ -247,6 +247,6 @@ class PlaceImport extends Model
 
     public function places(): HasMany
     {
-        return $this->hasMany(Place::class);
+        return $this->hasMany(Place::class, 'import_id', 'id');
     }
 }
