@@ -25,7 +25,7 @@ class PlaceImportController extends Controller
     {
         return Inertia::render('PlaceImport/Index', [
             'imports' => PlaceImportResource::collection(
-                PlaceImport::orderByDesc('id')
+                PlaceImport::queryOrder()
                     ->paginate(25)
                     ->withQueryString(),
             ),
