@@ -21,3 +21,28 @@
     --color-muted: #a0a0a0;
     --color-white: #ffffff;
 }
+
+/* ===== SearchSelectComponent ===== */
+.model-list.search.active {
+    @apply !border-primary-500 !ring-primary-500 !ring-1;
+}
+.model-list .search {
+    @apply !inline-flex !items-center !py-2 !text-base !font-normal;
+}
+.model-list .text {
+    @apply !text-base leading-5 !font-normal !text-black;
+}
+.model-list .menu {
+    @apply !rounded-t-none !rounded-b !border-gray-300 !shadow;
+}
+.model-list .dropdown.icon {
+    @apply !top-0 !right-0 !m-0 !aspect-square !h-full !p-0 !text-base !opacity-100;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    padding-right: 2.5rem;
+}
+.model-list .dropdown.icon:before {
+    content: '' !important;
+}

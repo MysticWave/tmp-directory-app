@@ -31,7 +31,7 @@ final class ReviewResource extends JsonResource
             'likes_count' => $this->likes_count,
             'reviews_count' => $this->reviews_count,
             'text' => $this->text,
-            'original_text' => $this->original_text,
+            'original_text' => $this->original_text ?? $this->text,
             'pictures' => $this->pictures ?? [],
         ]);
     }

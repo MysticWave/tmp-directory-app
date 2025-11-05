@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use App\Enums\ReviewSource;
+use App\Traits\OrderableTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Review extends Model
 {
+    use OrderableTrait;
     /**
      * The attributes that are mass assignable.
      *

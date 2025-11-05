@@ -1,5 +1,6 @@
-import { usePage } from '@inertiajs/vue3';
+import { router, usePage } from '@inertiajs/vue3';
 import Swal from 'sweetalert2';
+import { watch } from 'vue';
 
 export function numberFormat(number) {
     return number.toLocaleString('en-GB', {
@@ -45,3 +46,18 @@ export const Toast = Swal.mixin({
         toast.onmouseleave = Swal.resumeTimer;
     },
 });
+
+export function watchForm(form) {
+    watch(form, (values) => {
+        let parsedData = Object.keys(values.data()).reduce((a, b) => {
+            if (values.data()[b] != null) {
+                a[b] = values.data()[b];
+            }
+            return a;
+        }, {});
+
+        router.get(location.origin + location.pathname, parsedData, {
+            preserveState: true,
+        });
+    });
+}

@@ -3,10 +3,11 @@ import { faSave, faWrench } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useForm } from '@inertiajs/vue3';
 import { NewModal, PrimaryButton, SubmitButton } from '@netblink/vue-components';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
+import { collect } from '@mysticwave/collect-me';
 
 const props = defineProps({
-    place: {
+    places: {
         type: Object,
     },
 });
@@ -16,21 +17,37 @@ const handleSuccess = () => {
     isModalOpen.value = false;
 };
 
-const form = useForm({});
+const form = useForm({
+    places_ids: [],
+});
 const save = () => {
-    form.post(route('places.scrape-reviews', props.place.id), {
+    form.places_ids = collect(props.places).pluck('id').all();
+
+    form.post(route('places.scrape-reviews'), {
         preserveScroll: true,
         onSuccess: () => handleSuccess(),
     });
 };
+
+const hasPlaceWithReviews = computed(() => {
+    return props.places.some((place) => place.reviews_count > 0);
+});
 </script>
 
 <template>
     <NewModal title="Scrape Reviews" v-model:open="isModalOpen">
         <template #trigger>
-            <PrimaryButton>
-                <FontAwesomeIcon :icon="faWrench" />
+            <PrimaryButton :disabled="!places.length">
+                <FontAwesomeIcon :icon="faWrench" class="mr-2" />
+                Scrape Reviews ({{ places.length }})
             </PrimaryButton>
+        </template>
+
+        <template v-if="hasPlaceWithReviews">
+            <div class="bg-warning-100 text-warning flex flex-col px-4 py-2">
+                <p>Some of the places already have reviews.</p>
+                <p>Do you want to continue?</p>
+            </div>
         </template>
 
         <template #footer>

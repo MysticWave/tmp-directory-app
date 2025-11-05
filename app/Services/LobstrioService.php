@@ -32,6 +32,12 @@ class LobstrioService
         });
     }
 
+    public function getSquid(string $squidId): mixed
+    {
+        $response = $this->client()->get("/squids/{$squidId}");
+        return $response->json();
+    }
+
     public function addTasks(string $squidId, array $tasks): mixed
     {
         $response = $this->client()->post('/tasks', [
@@ -39,6 +45,20 @@ class LobstrioService
             'tasks' => $tasks,
         ]);
 
+        return $response->json();
+    }
+
+    /**
+     * @param string $squidId
+     * @param string $type 'url'|'params'
+     * @return mixed
+     */
+    public function listTasks(string $squidId, string $type = 'url'): mixed
+    {
+        $response = $this->client()->get('/tasks', [
+            'squid' => $squidId,
+            'type' => $type,
+        ]);
         return $response->json();
     }
 
@@ -103,13 +123,28 @@ class LobstrioService
         return $response->json();
     }
 
-    public function getPlaceData(string $squidId, string $query): mixed
-    {
-        $tasks = [
-            [
-                'url' => $query,
-            ],
-        ];
+    public function getPlaceData(
+        string $squidId,
+        ?string $url = null,
+        ?array $params = null,
+    ): mixed {
+        if (!$url && !$params) {
+            throw new \InvalidArgumentException(
+                'Either url or params must be provided.',
+            );
+        }
+
+        if ($url) {
+            $tasks = [
+                [
+                    'url' => $url,
+                ],
+            ];
+        }
+
+        if ($params) {
+            $tasks = [$params];
+        }
 
         $response = $this->addTasks($squidId, $tasks);
         if (!isset($response['tasks'])) {
