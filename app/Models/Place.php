@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\AiOutputStatus;
 use App\Enums\PlaceImportTaskType;
 use App\Enums\PlaceImportType;
 use App\Traits\OrderableTrait;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 class Place extends Model
 {
@@ -90,6 +92,55 @@ class Place extends Model
         }
     }
 
+    public function aiProcessReviews(Prompt $prompt): bool
+    {
+        try {
+            $input = $prompt->prompt_text;
+            $reviews = $this->reviews()
+                ->where(
+                    fn($query) => $query
+                        ->whereNotNull('text')
+                        ->orWhereNotNull('original_text'),
+                )
+                ->get();
+
+            if ($reviews->count() === 0) {
+                return false;
+            }
+
+            $input .= "\n---\n";
+            $input .= "Place Name: $this->name\n";
+            $input .= "Place Types: $this->type\n";
+            if ($this->description) {
+                $input .= "Place Description: $this->description\n";
+            }
+            $input .= "Address: $this->address_line_1\n";
+            $input .= "Country: $this->country\n";
+
+            foreach ($reviews as $review) {
+                $content = $review->original_text ?? $review->text;
+
+                $input .= "\n---\n";
+                $input .= "Author: $review->author_name\n";
+                $input .= "Rating: $review->rating / 5\n";
+                $input .= "Content: $content\n";
+            }
+
+            AiOutput::create([
+                'prompt_id' => $prompt->id,
+                'status' => AiOutputStatus::PENDING,
+                'outputable_type' => Place::class,
+                'outputable_id' => $this->id,
+                'input' => $input,
+            ]);
+
+            return true;
+        } catch (\Exception $e) {
+            report($e);
+            return false;
+        }
+    }
+
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
@@ -132,5 +183,10 @@ class Place extends Model
             ->when(request()->input('import_id'), function ($query, $importId) {
                 $query->where('import_id', $importId);
             });
+    }
+
+    public function aiOutputs(): MorphMany
+    {
+        return $this->morphMany(AiOutput::class, 'outputable');
     }
 }

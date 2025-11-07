@@ -145,7 +145,6 @@ class LobstrioService
         if ($params) {
             $tasks = [$params];
         }
-
         $response = $this->addTasks($squidId, $tasks);
         if (!isset($response['tasks'])) {
             logger()->error('Lobstr.io addTasks failed', [

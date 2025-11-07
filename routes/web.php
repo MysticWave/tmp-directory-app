@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\AiOutputController;
 use App\Http\Controllers\PlaceController;
 use App\Http\Controllers\PlaceImportController;
+use App\Http\Controllers\PromptController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -22,11 +24,16 @@ Route::middleware(['auth'])->group(function () {
         'index',
         'store',
         'update',
+        'show',
     ]);
     Route::post('places/scrape-reviews/', [
         PlaceController::class,
         'scrapeReviews',
     ])->name('places.scrape-reviews');
+    Route::post('places/process-reviews/', [
+        PlaceController::class,
+        'processReviews',
+    ])->name('places.process-reviews');
     Route::get('places/get-cities/', [
         PlaceController::class,
         'getCities',
@@ -46,6 +53,17 @@ Route::middleware(['auth'])->group(function () {
         'index',
         'show',
     ]);
+
+    Route::resource('prompts', PromptController::class)->only([
+        'index',
+        'update',
+        'store',
+    ]);
+    Route::get('prompts/find', [PromptController::class, 'find'])->name(
+        'prompts.find',
+    );
+
+    Route::resource('ai-outputs', AiOutputController::class)->only(['index']);
 });
 
 require __DIR__ . '/auth.php';

@@ -50,7 +50,7 @@ abstract class BaseAIClient implements AIClient
         return Http::baseUrl($this->baseUrl)
             ->acceptJson()
             ->withHeaders($this->authHeaders())
-            ->timeout($this->config['timeout'] ?? 60);
+            ->timeout($this->config['timeout'] ?? 120);
     }
 
     abstract protected function authHeaders(): array;
