@@ -8,6 +8,7 @@ import ImportModal from './ImportModal.vue';
 import ScrapeReviewsModal from './ScrapeReviewsModal.vue';
 import { computed } from 'vue';
 import SearchForm from './SearchForm.vue';
+import ProcessReviewsModal from './ProcessReviewsModal.vue';
 
 const props = defineProps({
     places: {
@@ -47,6 +48,7 @@ const getSelectedPlaces = () => {
         <template #actions>
             <ImportModal />
             <FormModal />
+            <ProcessReviewsModal :places="getSelectedPlaces()" />
             <ScrapeReviewsModal :places="getSelectedPlaces()" />
         </template>
     </HeaderBar>
@@ -69,7 +71,9 @@ const getSelectedPlaces = () => {
                     <Input type="checkbox" class="!mb-0" v-model="place.selected" rightDescription="" />
                 </Td>
                 <Td>
-                    {{ place.id }}
+                    <Link :href="route('places.show', place.id)" class="underline">
+                        {{ place.id }}
+                    </Link>
                 </Td>
                 <Td>
                     {{ place.name }}

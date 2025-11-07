@@ -31,6 +31,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property int $reviews_count
+ * @property-read Collection $reviews
+ * @property-read Collection $aiOutputs
  */
 final class PlaceResource extends JsonResource
 {
@@ -60,6 +62,13 @@ final class PlaceResource extends JsonResource
             'created_at' => $this->created_at?->toDateTimeString(),
             'updated_at' => $this->updated_at?->toDateTimeString(),
             'reviews_count' => $this->reviews_count,
+
+            'reviews' => ReviewResource::collection(
+                $this->whenLoaded('reviews'),
+            ),
+            'ai_outputs' => AiOutputResource::collection(
+                $this->whenLoaded('aiOutputs'),
+            ),
         ]);
     }
 }

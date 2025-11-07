@@ -1,7 +1,7 @@
 <script setup>
 import { router } from '@inertiajs/vue3';
 import { ref } from 'vue';
-import { faBuilding, faComment, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { faBuilding, faComment, faRobot, faUsers } from '@fortawesome/free-solid-svg-icons';
 import MenuItem from './MenuItem.vue';
 
 const currentRoute = ref(route().current());
@@ -57,6 +57,8 @@ const closeMenu = () => {
                         Place Imports
                     </MenuItem>
                     <MenuItem @click="closeMenu" url="reviews.index" :icon="faComment" :isCurrent="isCurrent('reviews')">Reviews</MenuItem>
+                    <MenuItem @click="closeMenu" url="prompts.index" :icon="faComment" :isCurrent="isCurrent('prompts')">Prompts</MenuItem>
+                    <MenuItem @click="closeMenu" url="ai-outputs.index" :icon="faRobot" :isCurrent="isCurrent('ai-outputs')">AI Outputs</MenuItem>
 
                     <li class="h-8"></li>
                 </ul>
