@@ -118,6 +118,7 @@ class LobstrioService
         }
 
         $query['page'] = $page;
+        $query['page_size'] = 100;
 
         $response = $this->client()->get('/results', $query);
         return $response->json();

@@ -238,6 +238,7 @@ class PlaceImport extends Model
             $results = $this->getResults(page: $page);
             $allResults = array_merge($allResults, $results['data'] ?? []);
             $page++;
+            sleep(1);
         } while ($page <= ($results['total_pages'] ?? 0));
 
         return $allResults;
