@@ -1,5 +1,6 @@
 <?php
 
+use App\Console\Commands\AI\Process;
 use App\Console\Commands\Lobstrio\CheckRuns;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
@@ -10,6 +11,11 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command(CheckRuns::class)
+    ->everyMinute()
+    ->withoutOverlapping()
+    ->onOneServer();
+
+Schedule::command(Process::class)
     ->everyMinute()
     ->withoutOverlapping()
     ->onOneServer();
