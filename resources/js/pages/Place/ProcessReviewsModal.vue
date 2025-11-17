@@ -36,7 +36,7 @@ const hasPlaceWithoutReviews = computed(() => {
 </script>
 
 <template>
-    <NewModal title="Process Reviews" v-model:open="isModalOpen">
+    <NewModal title="Process Reviews" v-model:open="isModalOpen" class="overflow-y-visible">
         <template #trigger>
             <PrimaryButton :disabled="!places.length">
                 <FontAwesomeIcon :icon="faRobot" class="mr-2" />

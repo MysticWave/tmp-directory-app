@@ -20,12 +20,6 @@ Route::middleware(['auth'])->group(function () {
         'update',
     ]);
 
-    Route::resource('places', PlaceController::class)->only([
-        'index',
-        'store',
-        'update',
-        'show',
-    ]);
     Route::post('places/scrape-reviews/', [
         PlaceController::class,
         'scrapeReviews',
@@ -34,10 +28,16 @@ Route::middleware(['auth'])->group(function () {
         PlaceController::class,
         'processReviews',
     ])->name('places.process-reviews');
-    Route::get('places/get-cities/', [
+    Route::get('places/get-cities', [
         PlaceController::class,
         'getCities',
     ])->name('places.get-cities');
+    Route::resource('places', PlaceController::class)->only([
+        'index',
+        'store',
+        'update',
+        'show',
+    ]);
 
     Route::get('place-imports/squid-details', [
         PlaceImportController::class,
